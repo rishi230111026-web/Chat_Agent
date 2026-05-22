@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My AI Chat</title>
+    <style>
+        body { background-color: #f4f4f9; font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; }
+        .phone-screen { width: 350px; border: 2px solid black; border-radius: 10px; background: white; padding: 15px; }
+        #chat-box { height: 400px; overflow-y: auto; background: #fafafa; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; }
+        .ai-message { background: #e0e0e0; padding: 10px; border-radius: 8px; margin-bottom: 10px; width: fit-content; }
+        .user-message { background: black; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; width: fit-content; margin-left: auto; }
+        #input-area { display: flex; }
+        input { flex: 1; padding: 10px; border: 1px solid #ccc; }
+        button { background: black; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-left: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="phone-screen">
+        <h2 style="text-align: center;">My Chat Agent</h2>
+        
+        <div id="chat-box">
+            <div class="ai-message">Hello! I am ready to help you.</div>
+        </div>
+        
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // NEW: Generate a random "Table Number" for this specific browser tab
+        const mySessionId = "user-" + Math.random().toString(36).substring(7);
+
+        document.getElementById("user-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            let inputField = document.getElementById("user-input");
+            let message = inputField.value;
+            if (message === "") return;
+
+            let chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<div class="user-message">${message}</div>`;
+            inputField.value = ""; 
+
+            try {
+                let response = await fetch("http://127.0.0.1:8000/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    // NEW: Send both the message AND the Table Number to the Kitchen!
+                    body: JSON.stringify({ message: message, session_id: mySessionId })
+                });
+
+                let data = await response.json();
+                chatBox.innerHTML += `<div class="ai-message">${data.reply}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (error) {
+                chatBox.innerHTML += `<div class="ai-message">Oops! Is the Kitchen turned on?</div>`;
+            }
+        }
+    </script>
+
+</body>
+</html>
