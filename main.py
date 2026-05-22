@@ -49,7 +49,7 @@ def process_chat(request: ChatRequest):
     # NEW: Check if this table needs a brand new chair pulled up
     if session_id not in active_sessions:
         active_sessions[session_id] = client.chats.create(
-            model='gemini-1.5-flash-8b',
+            model='gemini-1.5-flash',
             config={"system_instruction": "You are a helpful AI assistant."}
         )
     
